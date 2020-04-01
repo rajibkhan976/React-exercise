@@ -1,0 +1,456 @@
+﻿@import "../../../../sass/core/_colors.scss";
+
+.delegations-list-container {
+    background-color: $color-white;
+    width: 100%;
+    height: 100%;
+
+    .delegations-list {
+        width: 100%;
+        min-height: 530px;
+
+        .delegations-list-header {
+            width: 100%;
+            height: 100%;
+            margin: 1.7em 0 0 0;
+            background-color: #0974b3;
+
+            .delegations-header-empty-place {
+                width: 100%;
+            }
+
+            .assign-delegations {
+                background-color: #0974b3;
+                width: 50px;
+                min-height: 50px;
+                text-align: center;
+                cursor: pointer;
+
+                .assign-delegations-icon {
+                    padding-top: 1em;
+                    color: $color-white;
+                    font-size: 1.4em;
+                }
+            }
+
+            .assign-delegations:hover {
+                background-color: $color-white;
+
+                .assign-delegations-icon {
+                    color: #0974b3;
+                }
+            }
+
+            .delegations-filter-label {
+                font-size: 14px;
+                padding-top: 1em;
+                text-align: right;
+                color: $color-white;
+
+                @media only screen and (max-width: 768px) {
+                    text-align: center;
+                }
+            }
+
+            .delegations-filter {
+            }
+
+            .delegations-header-right {
+                padding-top: 0.5em;
+            }
+        }
+
+        .delegations-list-wrapper {
+            min-height: 460px;
+
+            .delegations-grid-header {
+                font-size: 1.2em;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+
+            .ReactVirtualized__Grid {
+                border: 1px solid #ddd;
+
+                .delegations-manager-buttons {
+                    padding-top: 0.5%;
+
+                    .edit-delegations-btn {
+                        background-color: $color-white;
+
+                        .edit-delegations-icon {
+                            color: #0974b3;
+                            font-size: 1.2em;
+                        }
+                    }
+
+                    .edit-delegations-btn:hover {
+                        background-color: #0974b3;
+
+                        .edit-delegations-icon {
+                            color: $color-white;
+                        }
+                    }
+
+                    .remove-delegations-btn {
+                        margin-left: 1em;
+                        background-color: $color-white;
+
+                        .remove-delegations-icon {
+                            color: #0974b3;
+                            font-size: 1.2em;
+                        }
+                    }
+
+                    .remove-delegations-btn:hover {
+                        background-color: #0974b3;
+
+                        .remove-delegations-icon {
+                            color: $color-white;
+                        }
+                    }
+                }
+            }
+        }
+
+        @media screen and (max-width: 360px) and (max-height: 640px) {
+            .delegations-list-wrapper {
+                min-height: 390px;
+            }
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        .delegations-list {
+            min-height: 530px;
+        }
+    }
+
+    @media screen and (max-width: 360px) and (max-height: 640px) {
+        .delegations-list {
+            min-height: 465px;
+        }
+    }
+}
+
+.modal-dialog {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+}
+
+@media only screen and (max-height: 610px) {
+
+    .modal {
+        top: 2.5em;
+    }
+}
+
+@media only screen and (max-width: 1024px) and (max-height: 610px) {
+
+    .modal {
+        top: -2em;
+    }
+}
+
+.delegations-data-modal {
+
+    .flex-container {
+        margin-top: 1em;
+    }
+
+    .delegations-form-label {
+        padding: 0.8em 0;
+        font-size: 1.2em;
+        font-weight: 600;
+    }
+
+    .delegations-data-modal-container {
+        min-height: 450px;
+
+        .delegations-reportingPlace-titel {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-left: -1em;
+            margin-bottom: 1em;
+        }
+
+        .delegations-data-modal-tree {
+            height: 300px;
+
+            .delegations-reportingPlace-tree-container {
+                height: 100%;
+                flex: 1 0 auto;
+                display: flex;
+                flex-direction: column;
+                margin-top: 1em;
+
+                .delegations-reportingPlace-tree-wrapper {
+                    flex: 1 1 auto;
+                    border: 1px solid #d7d7d7;
+                }
+            }
+
+            .delegations-reportingPlace-tree {
+                height: 100%;
+
+                .checkbox-tree-node {
+                    margin-left: 10px;
+
+                    .inner-node {
+                        border-left: 1px dotted #ccc;
+                        border-bottom: 1px dotted #ccc;
+                        display: inline-block;
+                        height: 100%;
+                        width: 100%;
+                        position: absolute;
+
+                        &:before {
+                            content: "¨¨";
+                            color: #ccc;
+                            position: absolute;
+                            top: 8px;
+                            left: 0px;
+                        }
+                    }
+
+                    .inner-node-left-content {
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        margin-left: 8px;
+                    }
+
+                    .expand-node,
+                    .select-node,
+                    .assign-node {
+                        font-size: 1.2em;
+                        margin: 5px 0;
+                    }
+
+                    .select-node,
+                    .assign-node {
+                        padding-right: 3px;
+                    }
+
+                    .expand-node {
+                        position: absolute;
+                        left: -5px;
+                        margin: 4px 0;
+                        background: white;
+                    }
+
+                    .select-node {
+                        margin: 5px;
+                    }
+
+                    .group-manager-name {
+                        padding: 4px 0;
+                        display: inline-block;
+                    }
+
+                    .group-manager-management .select-checkbox-tree {
+                        display: inline-block;
+                        min-width: 180px;
+                    }
+
+                    .info-icon {
+                        font-size: 1.2em;
+                        margin: 5px 5px 5px 0;
+                    }
+
+                    .vertical-separator {
+                        height: 100%;
+                        width: 23px;
+                        position: relative;
+                        left: 0px;
+                        display: inline-block;
+
+                        &:not(.is-hidden) {
+                            border-left: 1px dotted #ccc;
+                        }
+                    }
+
+                    &.is-disabled {
+                        color: lightgray;
+                        cursor: default;
+                    }
+                }
+            }
+        }
+    }
+
+    .modal-content {
+        height: 70vh;
+        margin: 0 auto;
+
+        .delegations-data-modal-body {
+            height: 100%;
+        }
+
+        @media only screen and (max-width: 1024px) {
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 5em;
+        }
+    }
+
+    .delegations-form-validation-error {
+        margin-top: 3em;
+        min-height: 30px;
+
+        .delegations-form-validation-icon {
+            top: 0.5em;
+        }
+
+        .delegations-form-error-message {
+            display: inline-block;
+            font-size: 1.25em;
+            margin-left: 1em;
+        }
+
+        @media only screen and (max-width: 576px) {
+
+            .delegations-form-validation-icon {
+                top: 3em;
+            }
+
+            .delegations-form-error-message {
+                margin-left: 2.5em;
+            }
+        }
+
+        @media only screen and (max-width: 991px) {
+
+            .delegations-form-validation-icon {
+                top: 3em;
+            }
+
+            .delegations-form-error-message {
+                margin-left: 3em;
+            }
+        }
+    }
+
+    .delegations-data-modal-buttons {
+        width: 35em;
+        margin-left: 20em;
+        margin-top: 5em;
+
+        .save-delegation-button {
+            margin-left: 2em;
+        }
+
+        @media only screen and (max-width: 667px) {
+            width: 16em;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 2em;
+
+            .save-delegation-button {
+                margin-left: 0;
+                margin-top: 1em;
+            }
+        }
+
+        @media only screen and (min-width: 668px) and (max-width: 991px) {
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 3em;
+        }
+
+        @media only screen and (max-width: 414px) and (min-height: 568px) {
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 3em;
+        }
+
+        @media only screen and (max-height: 813px) {
+            margin-bottom: 2em;
+        }
+    }
+
+    @media only screen and (max-width: 499px) {
+
+        .delegations-data-modal-body {
+            max-height: 65vh;
+            margin: 0;
+        }
+    }
+
+    @media only screen and (max-width: 991px) and (min-height: 813px) {
+
+        .modal-content {
+            height: 80vh;
+
+            .delegations-data-modal-body {
+                max-height: 70vh;
+            }
+        }
+    }
+
+    @media only screen and (max-width: 414px) and (min-height: 568px) {
+
+        .modal-content {
+            height: 80vh;
+
+            .delegations-data-modal-body {
+                height: 100%;
+            }
+        }
+    }
+
+    @media only screen and (max-height: 610px) {
+
+        .modal {
+            top: 30px;
+        }
+
+        .modal-content {
+            height: 90vh;
+
+            .delegations-data-modal-body {
+                max-height: 75vh;
+            }
+        }
+    }
+}
+
+.delegations-confirmation-modal {
+
+    .modal-content {
+        max-width: 40em;
+        margin: 10em auto;
+    }
+
+    .delegations-confirmation-message {
+        font-size: 1.25em;
+        margin-top: 0.2em;
+    }
+
+    .delegations-confirmation-modal-buttons {
+        width: 100%;
+        margin-top: 4em;
+        margin-bottom: 2em;
+
+        .remove-delegation-button {
+            margin-left: 2em;
+        }
+
+        @media only screen and (max-width: 576px) {
+            width: 85%;
+            margin-left: 5em;
+            margin-top: 3.5em;
+            margin-bottom: 2em;
+
+            .remove-delegation-button {
+                margin-left: 0;
+                margin-top: 1em;
+            }
+        }
+
+        @media only screen and (max-width: 320px) {
+            margin-left: 3em;
+        }
+    }
+}
