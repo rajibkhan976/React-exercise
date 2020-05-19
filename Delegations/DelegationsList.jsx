@@ -11,8 +11,9 @@ import { replaceNodeFromTree } from "react-virtualized-tree/lib/selectors/nodes"
 import { getFlattenedTree } from "react-virtualized-tree/lib/selectors/getFlattenedTree";
 import { FadeUp } from "../../../Utils/transitionWrappers";
 import DelegationsModal from "./DelegationsModal";
+import DelegatedUserInfo from "./DelegatedUserInfo";
 
-const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, delegationUsers, delegationsActions }) => {
+const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDetails, groupTree, partialRole, delegationUsers, delegatedUser, delegationsActions }) => {
 
     const [delegateRole, setDelegateRole] = useState('');
     const [nodes, setNodes] = useState(undefined);
@@ -21,11 +22,11 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
     const [endingDate, setEndingDate] = useState(undefined);
     const [toggleModal, setToggleModal] = useState(false);
     const initialDelegations = [
-        [   p.t("delegations_list_header_manage_delegation"),
+        [   " ",
             p.t("delegations_list_header_role"),
             p.t("delegations_list_header_user"),
-            p.t("delegations_list_header_start_from"),
-            p.t("delegations_list_header_end_by")
+            p.t("delegations_list_header_starting_from"),
+            p.t("delegations_list_header_ending_by")
         ]
     ];
 
@@ -34,11 +35,11 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
 
     useEffect(() => {
         let delegationsArray = [
-            [   p.t("delegations_list_header_manage_delegation"),
+            [   " ",
                 p.t("delegations_list_header_role"),
                 p.t("delegations_list_header_user"),
-                p.t("delegations_list_header_start_from"),
-                p.t("delegations_list_header_end_by")
+                p.t("delegations_list_header_starting_from"),
+                p.t("delegations_list_header_ending_by")
             ]
         ];
         let delegationsIdArray = [[""]];
@@ -62,7 +63,8 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
     const [editIndex, setEditIndex] = useState(null);
     const [deleteIndex, setDeleteIndex] = useState(null);
     const [rowIndex, setRowIndex] = useState(null);
-    const [rowHeight, setRowHeight] = useState(40);
+    const [headerRowHeight, setHeaderRowHeight] = useState(30);
+    const [rowHeight, setRowHeight] = useState(41);
     const [gridRef, setGridRef] = useState(undefined);
     const [validationError, setValidationError] = useState(undefined);
 
@@ -187,20 +189,6 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
         }
     }, [partialRole]);
 
-    useEffect(() => {
-
-        if (reportingPlaceParam !== undefined &&
-            reportingPlaceParam.sourceUserRole !== undefined &&
-            reportingPlaceParam.destinationUserRole !== undefined
-        ) {
-            delegationsActions.loadGroupTree(reportingPlaceParam.sourceUserRole.id, reportingPlaceParam.destinationUserRole.id);
-        }
-    }, [reportingPlaceParam]);
-
-    useEffect(() => {
-        setNodes(groupTree);
-    }, [groupTree]);
-
     const handleChangeDelegateRole = (delegateRole, delegationDetails) => {
         if (delegateRole !== null &&
             delegationDetails !== undefined &&
@@ -232,23 +220,27 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
 
     const addDelegation = (event) => {
 
-        setNodes(groupTree);
+        if (isLoading) {
+            window.loader.show();
+        } else {
+            window.loader.hide();
 
-        if (delegationDetails !== undefined &&
-            delegationDetails.roles !== undefined
-        ) {
-            delegationDetails.roles.map((value, index) => {
-                if (index === 0) {
-                    delegationsActions.getDependsOnSelectedRolePartial(value.id);
-                    setDelegateRole(value.role.name);
-                }
-            });
+            if (delegationDetails !== undefined &&
+                delegationDetails.roles !== undefined
+            ) {
+                delegationDetails.roles.map((value, index) => {
+                    if (index === 0) {
+                        delegationsActions.getDependsOnSelectedRolePartial(value.id);
+                        setDelegateRole(value.role.name);
+                    }
+                });
+            }
+            setUserName('');
+            setStartingDate(undefined);
+            setEndingDate(undefined);
+            //setNodes(groupTree);
+            setToggleModal(true);
         }
-
-        setUserName('');
-        setStartingDate(undefined);
-        setEndingDate(undefined);
-        setToggleModal(true);
     }
 
     const registerChild = useRef(null);
@@ -293,32 +285,36 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
 
     const editDelegation = (rowData, editIndex, parentGrid, event) => {
 
-        setNodes(groupTree);
+        if (isLoading) {
+            window.loader.show();
+        } else {
+            window.loader.hide();
 
-        delegationsIds.map((value, index) => {
-            if (editIndex === index) {
-                setEditIndex(value);
-                delegationsActions.loadDelegationDetails(value);
+            delegationsIds.map((value, index) => {
+                if (editIndex === index) {
+                    setEditIndex(value);
+                    delegationsActions.loadDelegationDetails(value);
+                }
+            });
+            
+            setDelegateRole(rowData[1]);
+            setEditDelegatedUser(rowData[2]);
+
+            if (rowData[3] !== 'Invalid date') {
+                setStartingDate(moment(rowData[3]));
+            } else {
+                setStartingDate(undefined);
             }
-        });
-        
-        setDelegateRole(rowData[1]);
-        setEditDelegatedUser(rowData[2]);
 
-        if (rowData[3] !== 'Invalid date') {
-            setStartingDate(moment(rowData[3]));
-        } else {
-            setStartingDate(undefined);
+            if (rowData[4] !== 'Invalid date') {
+                setEndingDate(moment(rowData[4]));
+            } else {
+                setEndingDate(undefined);
+            }
+            //setNodes(groupTree);
+            setGridRef(parentGrid);
+            setToggleModal(true);
         }
-
-        if (rowData[4] !== 'Invalid date') {
-            setEndingDate(moment(rowData[4]));
-        } else {
-            setEndingDate(undefined);
-        }
-
-        setGridRef(parentGrid);
-        setToggleModal(true);
     }
 
     useEffect(() => {
@@ -338,6 +334,20 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
 
         setUserName(delegatedUser);
     }, [editDelegatedUser, delegationUsers]);
+
+    useEffect(() => {
+
+        if (reportingPlaceParam !== undefined &&
+            reportingPlaceParam.sourceUserRole !== undefined &&
+            reportingPlaceParam.destinationUserRole !== undefined
+        ) {
+            delegationsActions.loadGroupTree(reportingPlaceParam.sourceUserRole.id, reportingPlaceParam.destinationUserRole.id);
+        }
+    }, [reportingPlaceParam]);
+
+    useEffect(() => {
+        setNodes(groupTree);
+    }, [groupTree]);
 
     const updateDelegation = (selectedIndex, gridRef) => {
         
@@ -406,67 +416,219 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
 
     }
 
+    const rowHeightSetter = ({ index }) => {
+        if (index === 0) {
+            return headerRowHeight;
+        } else {
+            return rowHeight;
+        }
+    }
+
+    const [columnWidth, setColumnWidth] = useState(undefined);
+
+    const columnWidthGetter = (columnWidth) => {
+
+        setColumnWidth(columnWidth);
+    }
+
+    const columnWidthSetter = ({ index }) => {
+        if (index === 0) {
+            return 82;
+        } else {
+            if (columnWidth !== undefined) {
+                return columnWidth * 1.2;
+            }
+        }
+    }
+
+    const setRowClassName = (rowIndex) => {
+        if (rowIndex !== 0) {
+            return 'delegation-list-row-data';
+        }
+    }
+
     const noContentRenderer = () => {
 
+        if (isLoading) {
+            return (
+                <div className="grid-message loading-message">
+                    <div className="bg-fadeup-transition">
+                        <h3>
+                            <span className="loader-spinner-wrapper message-icon-wrapper">
+                                <i className="loader-spinner" />
+                            </span>
+                            {p.t("delegations_list_loading_delegations")}
+                        </h3>
+                    </div>
+                </div>
+                );
+        } else {
+            return (
+                <div className="delegations-grid-no-rows grid-message loading-message">
+                    <FadeUp ready={true}>
+                        <h3>
+                            <span className="message-icon-wrapper">
+                                <i className="fa fa-exclamation-circle" />
+                            </span>
+                            {p.t("delegations_list_empty_grid")}
+                        </h3>
+                    </FadeUp>
+                </div>
+            );
+        }
+    }
+
+    const renderLeftColumnCell = ({ columnIndex, key, parent, rowIndex, style }) => {
+
         return (
-            <div className="delegations-grid-no-rows grid-message loading-message">
-                <FadeUp ready={true}>
-                    <h3>
-                        <span className="message-icon-wrapper">
-                            <i className="fa fa-exclamation-circle" />
+            <div className={"delegations-list-left-grid"} key={key} style={{ ...style, borderBottom: '1px solid #ddd' }}>
+                {(rowIndex !== 0) ?
+                    <div className="delegations-manager-buttons">
+                        <button type="button" className="edit-delegations-btn" onClick={(event) => editDelegation(delegations[rowIndex], rowIndex, parent, event)}>
+                            <i className="fa fa-pencil edit-delegations-icon" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" className="remove-delegations-btn" onClick={(event) => deleteDelegation(rowIndex, parent, event)}>
+                            <i className="fa fa-trash-o remove-delegations-icon" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    :
+                    null
+                }
+            </div>
+            );
+    }
+
+    const renderHeaderCell = ({ columnIndex, key, parent, rowIndex, style }) => {
+        return (
+            <div className={"delegations-list-header-grid"}
+                key={key}
+                style={{
+                    ...style,
+                    paddingLeft: '4em'
+                }}
+            >
+                <div className="delegations-grid-header-cell">
+                    {delegations[rowIndex][columnIndex]}
+                </div>
+            </div>
+            );
+    }
+
+    const [isOpenedDelegatedUserInfo, setIsOpenedDelegatedUserInfo] = useState([]);
+    const [delegatedUserInfoIndex, setDelegatedUserInfoIndex] = useState(-1);
+    const [dimensions, setDimensions] = useState({ top: 0, left: 0 });
+
+    const openDelegatedUserInfo = (userName, rowIndex, event) => {
+        event.stopPropagation();
+        if (userName !== null && rowIndex !== null && list !== undefined && list.length !== 0) {
+            list.map((value, index) => {
+                if (userName === value.destinationUserRole.user.fullName && index === (rowIndex - 1)) {
+                    delegationsActions.findDelegatedUser(value.destinationUserRole.userId);
+                    setDelegatedUserInfoIndex(rowIndex);
+                    setIsOpenedDelegatedUserInfo([rowIndex]);
+                    let dimensions = placeDelegatedUserInfo(event);
+                    setDimensions(dimensions);
+                }
+            });
+        } else {
+            closeDelegatedUserInfo();
+        }
+    }
+
+    const closeDelegatedUserInfo = () => {
+        setIsOpenedDelegatedUserInfo([]);
+    }
+
+    const placeDelegatedUserInfo = (event) => {
+        let targetsDimension = event.target.getBoundingClientRect();
+        let leftOffset = targetsDimension.left;
+        let topOffset = targetsDimension.top - (targetsDimension.height * 3);
+        return {
+            top: topOffset,
+            left: leftOffset
+        };
+    }
+
+    const [delegatedUserName, setDelegatedUserName] = useState('');
+    const [delegatedUserPhone, setDelegatedUserPhone] = useState('');
+    const [delegatedUserEmail, setDelegatedUserEmail] = useState('');
+    const [delegatedUserEmployment, setDelegatedUserEmployment] = useState([]);
+
+    useEffect(() => {
+        if (delegatedUser !== undefined && delegatedUser.length !== 0) {
+            delegatedUser.map((value, index) => {
+                if (value.persons !== undefined && value.persons.length !== 0) {
+                    setDelegatedUserName(value.fullName);
+                    setDelegatedUserPhone(value.phoneNumber);
+                    setDelegatedUserEmail(value.email);
+                    setDelegatedUserEmployment(value.persons);
+                }
+            })
+        }
+    }, [delegatedUser]);
+
+    const renderBodyCell = ({ columnIndex, key, parent, rowIndex, style }) => {
+
+        const className = setRowClassName(rowIndex);
+
+        return (
+            <div
+                className={className}
+                key={key}
+                style={{
+                    ...style,
+                    borderBottom: '1px solid #ddd',
+                    textAlign: 'left',
+                    paddingTop: '0.2em',
+                    paddingLeft: '4em'
+                }}
+            >
+                {(columnIndex === 2) ?
+                    <div className="delegations-grid-cell">
+                        <span
+                            className="delegated-user-name text-button"
+                            onClick={(event) => openDelegatedUserInfo(delegations[rowIndex][columnIndex], rowIndex, event)}
+                        >
+                            <i className="fa fa-info-circle sub-icon" aria-hidden="true"></i>
+                            {delegations[rowIndex][columnIndex]}
                         </span>
-                        {p.t("delegations_list_empty_grid")}
-                    </h3>
-                </FadeUp>
+                    </div>
+                    :
+                    <div className="delegations-grid-cell">
+                        {delegations[rowIndex][columnIndex]}
+                    </div>
+                }
             </div>
             );
     }
 
     const cellRenderer = ({ columnIndex, key, parent, rowIndex, style }) => {
-        
-        return (
-            <div key={key}
-                style={{
-                    ...style,
-                    borderBottom: '1px solid #ddd',
-                    textAlign: 'center',
-                    paddingTop: '0.5%'
-                }}
-            >
-                {(delegations[rowIndex][columnIndex] === "") ?
-                        <div className="delegations-manager-buttons">
-                            <button type="button" className="btn btn-sm edit-delegations-btn" onClick={(event) => editDelegation(delegations[rowIndex], rowIndex, parent, event)}>
-                                <i className="fa fa-pencil edit-delegations-icon" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" className="btn btn-sm remove-delegations-btn" onClick={(event) => deleteDelegation(rowIndex, parent, event)}>
-                                <i className="fa fa-trash-o remove-delegations-icon" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    :
-                    (rowIndex === 0) ?
-                        <div className="delegations-grid-header">
-                            {delegations[rowIndex][columnIndex]}
-                        </div>
-                        :
-                        <div className="delegations-grid-cell">
-                            {delegations[rowIndex][columnIndex]}
-                        </div>    
-                    }
-            </div>
-        );
+
+        if (columnIndex === 0) {
+            return renderLeftColumnCell({ columnIndex, key, parent, rowIndex, style });
+        } else if (rowIndex === 0) {
+            return renderHeaderCell({ columnIndex, key, parent, rowIndex, style });
+        } else {
+            return renderBodyCell({ columnIndex, key, parent, rowIndex, style });
+        }
     }
 
     return (
-        <div className="col-xs-12 delegations-list-container">
+        <div className="col-xs-12 delegations-list-container" onClick={(event) => openDelegatedUserInfo(null, null, event)}>
             <div className="delegations-list">
                 <div className="row delegations-list-header">
                     <div className="col-lg-12 no-padding">
+                        <div className="delegations-list-header-titel pull-left">
+                            {p.t("delegations_list_header_manage_delegation")}
+                        </div>
                         <div className="assign-delegations pull-right" onClick={(event) => addDelegation(event)}>
                             <i className="fa fa-plus assign-delegations-icon" aria-hidden="true"></i>
                         </div>
                     </div>
                     {toggleModal ?
                         <DelegationsModal
+                            isLoading={isLoading}
+                            isLoadingGroupTree={isLoadingGroupTree}
                             toggleModal={toggleModal}
                             rowIndex={rowIndex}
                             editIndex={editIndex}
@@ -490,11 +652,26 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
                             handleModalClose={handleModalClose}
                             gridRef={gridRef}
                             registerChild={registerChild}
+                            delegatedUserEmployment={delegatedUserEmployment}
                         />
                         :
                         null
                     }
                 </div>
+                {isOpenedDelegatedUserInfo ?
+                    <DelegatedUserInfo
+                        dimensions={dimensions}
+                        delegatedUserName={delegatedUserName}
+                        delegatedUserPhone={delegatedUserPhone}
+                        delegatedUserEmail={delegatedUserEmail}
+                        delegatedUserEmployment={delegatedUserEmployment}
+                        rowIndex={delegatedUserInfoIndex}
+                        isOpenedDelegatedUserInfo={isOpenedDelegatedUserInfo}
+                        closeDelegatedUserInfo={closeDelegatedUserInfo}
+                    />
+                    :
+                    null
+                }
                 <div className="delegations-list-wrapper">
                     <AutoSizer>
                         {({ height, width }) => (
@@ -505,34 +682,41 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
                                 key="GridColumnSizer"
                                 width={width}
                             >
-                                {({ adjustedWidth, columnWidth, registerChild }) => (
-                                    <div
-                                        className={styles.GridContainer}
-                                        style={{
-                                            height: 40,
-                                            width: width,
-                                    }}>
-                                        <MultiGrid
-                                            ref={registerChild}
-                                            height={height}
-                                            width={width}
-                                            cellRenderer={cellRenderer}
-                                            noContentRenderer={noContentRenderer}
-                                            columnWidth={columnWidth}
-                                            columnCount={delegations[0].length}
-                                            rowHeight={rowHeight}
-                                            rowCount={delegations.length}
-                                            enableFixedRowScroll
-                                            fixedRowCount={1}
-                                            hideTopRightGridScrollbar
-                                            enableFixedColumnScroll
-                                            fixedColumnCount={(delegations.length > 1) ? 1 : 0}
-                                            hideBottomLeftGridScrollbar
-                                            styleBottomLeftGrid={{ borderRight: '1px solid #000000' }}
-                                            styleTopLeftGrid={{ borderRight: '1px solid #000000' }}
-                                />
-                                    </div>
-                                )}
+                                {({ adjustedWidth, columnWidth, registerChild }) => {
+
+                                    columnWidthGetter(columnWidth);
+
+                                    return (
+                                        <div
+                                            className={styles.GridContainer}
+                                            style={{
+                                                height: 30,
+                                                width: width,
+                                            }}>
+                                            <MultiGrid
+                                                ref={registerChild}
+                                                height={height}
+                                                width={width}
+                                                cellRenderer={cellRenderer}
+                                                noContentRenderer={noContentRenderer}
+                                                columnWidth={columnWidthSetter}
+                                                columnCount={delegations[0].length}
+                                                rowHeight={rowHeightSetter}
+                                                rowCount={delegations.length}
+                                                enableFixedRowScroll
+                                                fixedRowCount={1}
+                                                hideTopRightGridScrollbar
+                                                enableFixedColumnScroll
+                                                fixedColumnCount={(delegations.length > 1) ? 1 : 0}
+                                                hideBottomLeftGridScrollbar
+                                                styleBottomLeftGrid={{ borderRight: '1px solid #000000', overflow: 'hidden' }}
+                                                styleTopLeftGrid={{ borderRight: '1px solid #000000', borderBottom: 'none' }}
+                                                styleTopRightGrid={{ overflow: 'hidden', borderBottom: 'none', borderLeft: 'none' }}
+                                                styleBottomRightGrid={{ borderLeft: 'none' }}
+                                            />
+                                        </div>
+                                    )
+                                }}
                             </ColumnSizer>
                         )}
                     </AutoSizer>
@@ -544,20 +728,26 @@ const DelegationsList = ({ p, list, delegationDetails, groupTree, partialRole, d
 
 DelegationsList.propTypes = {
     p: PropTypes.object,
+    isLoading: PropTypes.bool,
+    isLoadingGroupTree: PropTypes.bool,
     list: PropTypes.array,
     delegationDetails: PropTypes.object,
     groupTree: PropTypes.array,
     partialRole: PropTypes.object,
-    delegationUsers: PropTypes.array
+    delegationUsers: PropTypes.array,
+    delegatedUser: PropTypes.array
 };
 
 function mapStateToProps(state) {
     return {
+        isLoading: state.delegations.myDelegations.isLoading,
+        isLoadingGroupTree: state.delegations.myDelegations.isLoadingGroupTree,
         list: state.delegations.myDelegations.list,
         delegationDetails: state.delegations.myDelegations.delegationDetails,
         groupTree: state.delegations.myDelegations.groupTree,
         partialRole: state.delegations.myDelegations.partialRole,
-        delegationUsers: state.delegations.myDelegations.delegationUsers
+        delegationUsers: state.delegations.myDelegations.delegationUsers,
+        delegatedUser: state.delegations.myDelegations.delegatedUser
     };
 }
 

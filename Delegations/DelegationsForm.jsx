@@ -10,6 +10,7 @@ import Select from "react-select";
 
 const DelegationsForm = ({
     p,
+    isLoading,
     editIndex,
     delegationDetails,
     delegateRole,
@@ -29,7 +30,10 @@ const DelegationsForm = ({
 
     const setRolesOptions = (delegationDetails) => {
         let options  = [];
-        if (delegationDetails.roles.length !== 0) {
+        if (!isLoading &&
+            delegationDetails !== undefined &&
+            delegationDetails.roles !== undefined &&
+            delegationDetails.roles.length !== 0) {
             delegationDetails.roles.map((value, index) => {
                 if (value.startDate !== null && value.endDate === null) {
                     options.push(
@@ -55,7 +59,9 @@ const DelegationsForm = ({
 
     const setDelegableUsersOptions = (delegationUsers) => {
         let options = [];
-        if (delegationUsers.length !== 0) {
+        if (!isLoading &&
+            delegationUsers !== undefined &&
+            delegationUsers.length !== 0) {
             delegationUsers.map((value, index) => {
                 options.push(
                     { value: `${value.text}`, label: `${value.text}` }
@@ -75,6 +81,7 @@ const DelegationsForm = ({
                 onChange={(delegateRole) => handleChangeDelegateRole(delegateRole, delegationDetails)}
                 options={setRolesOptions(delegationDetails)}
                 disabled={editIndex ? true : false}
+                isLoading={isLoading ? true : false}
             />
             <p className="delegations-form-label">{p.t("delegations_list_label_user")}</p>
             <Select
@@ -84,14 +91,15 @@ const DelegationsForm = ({
                 onChange={(userName) => handleChangeUserName(userName)}
                 options={setDelegableUsersOptions(delegationUsers)}
                 disabled={editIndex ? true : false}
+                isLoading={isLoading ? true : false}
             />
-            <p className="delegations-form-label">{p.t("delegations_list_label_start_date")}</p>
+            <p className="delegations-form-label">{p.t("delegations_list_header_starting_from")}</p>
             <DatePicker
                 className="delegations-period"
                 selected={startingDate}
                 onChange={handleChangeStartingDate}
             />
-            <p className="delegations-form-label">{p.t("delegations_list_label_end_date")}</p>
+            <p className="delegations-form-label">{p.t("delegations_list_header_ending_by")}</p>
             <DatePicker
                 className="delegations-period"
                 selected={endingDate}
@@ -103,6 +111,7 @@ const DelegationsForm = ({
 
 DelegationsForm.propTypes = {
     p: PropTypes.object,
+    isLoading: PropTypes.bool,
     list: PropTypes.array,
     delegationDetails: PropTypes.object,
     groupTree: PropTypes.array,
@@ -112,6 +121,7 @@ DelegationsForm.propTypes = {
 
 function mapStateToProps(state) {
     return {
+        isLoading: state.delegations.myDelegations.isLoading,
         list: state.delegations.myDelegations.list,
         delegationDetails: state.delegations.myDelegations.delegationDetails,
         groupTree: state.delegations.myDelegations.groupTree,

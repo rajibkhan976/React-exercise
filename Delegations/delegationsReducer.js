@@ -2,7 +2,7 @@
 import * as Types from "../../Actions/MyProfile/actionTypes";
 import Update from "immutability-helper";
 
-export default function delegationsReducer(state = initalState.delegations, action) {
+export default function delegationsReducer(state = initalState.myprofile, action) {
     return {
         myDelegations: myDelegationsReducer(state.myDelegations, action)
     };
@@ -10,6 +10,12 @@ export default function delegationsReducer(state = initalState.delegations, acti
 
 function myDelegationsReducer(state, action) {
     switch (action.type) {
+
+        case Types.SET_IS_LOADING:
+            return { ...state, isLoading: action.data };
+
+        case Types.SET_IS_LOADING_GROUP_TREE:
+            return { ...state, isLoadingGroupTree: action.data };
 
         case Types.LOAD_DELEGATION_LIST_SUCCESS:
             return { ...state, list: action.data.gridModel.records };
@@ -25,6 +31,9 @@ function myDelegationsReducer(state, action) {
 
         case Types.LOAD_DELEGATION_USERS_SUCCESS:
             return { ...state, delegationUsers: action.data.results };
+
+        case Types.LOAD_DELEGATED_USER_SUCCESS:
+            return { ...state, delegatedUser: action.data };
 
         case Types.SAVE_DELEGATION_SUCCESS:
             return Update(state, { $push: [action.data] });

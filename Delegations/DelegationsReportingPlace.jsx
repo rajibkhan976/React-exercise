@@ -18,7 +18,7 @@ class DelegationsReportingPlace extends React.Component {
     }
 
     render() {
-        const { nodes, p } = this.props;
+        const { nodes, p, isLoading, isLoadingGroupTree } = this.props;
         const flattenedTree = getFlattenedTree(nodes);
         const nodeMarginLeft = 20;
         const nodeWidth = 870;
@@ -27,37 +27,50 @@ class DelegationsReportingPlace extends React.Component {
             <div className="delegations-reportingPlace-tree-container">
                 <div className="delegations-reportingPlace-titel">{p.t("delegations_list_reporting_place")}</div>
                 <div className="row delegations-reportingPlace-tree-wrapper">
-                    <div ref={this.wrapper} className="delegations-reportingPlace-tree">
+                    {(isLoadingGroupTree) ?
+                        <div className="grid-message loading-message">
+                            <div className="bg-fadeup-transition">
+                                <h3>
+                                    <span className="loader-spinner-wrapper message-icon-wrapper">
+                                        <i className="loader-spinner" />
+                                    </span>
+                                    {p.t("delegations_list_loading_reporting_places")}
+                                </h3>
+                            </div>
+                        </div>
+                        :
+                        <div ref={this.wrapper} className="delegations-reportingPlace-tree">
                             <ReportingPlaceTreeView
                                 nodes={flattenedTree}
                                 onChange={this.props.handleChangeReportingPlace}
                             >
-                            {({ style: s, node, ...rest }) => {
-                                const marginLeft = node.deepness * nodeMarginLeft + 10;
-                                const calcNodeWidth = nodeWidth - (marginLeft + node.deepness * 23);
-                                const style = { ...s, paddingRight: nodeWidth - calcNodeWidth, width: calcNodeWidth };
+                                {({ style: s, node, ...rest }) => {
+                                    const marginLeft = node.deepness * nodeMarginLeft + 10;
+                                    const calcNodeWidth = nodeWidth - (marginLeft + node.deepness * 23);
+                                    const style = { ...s, paddingRight: nodeWidth - calcNodeWidth, width: calcNodeWidth };
 
-                                return (
-                                    <div
-                                        className={cn("checkbox-tree-node", { "is-disabled": node.state.disabled })}
-                                        style={style}
-                                    >
-                                        {/* Visual vertical tree lines  */}
-                                        {Array.from({ length: node.deepness }).map((_, index) =>
-                                            React.createElement(
-                                                "div",
-                                                { key: index, className: `vertical-separator` },
-                                                null
-                                            )
-                                        )}
+                                    return (
+                                        <div
+                                            className={cn("checkbox-tree-node", { "is-disabled": node.state.disabled })}
+                                            style={style}
+                                        >
+                                            {/* Visual vertical tree lines  */}
+                                            {Array.from({ length: node.deepness }).map((_, index) =>
+                                                React.createElement(
+                                                    "div",
+                                                    { key: index, className: `vertical-separator` },
+                                                    null
+                                                )
+                                            )}
                                             <ReportingPlaceExpandable node={node} {...rest}>
                                                 <ReportingPlaceSelection node={node} {...rest} p={p} />
                                             </ReportingPlaceExpandable>
-                                    </div>
-                            );
-                            }}
+                                        </div>
+                                    );
+                                }}
                             </ReportingPlaceTreeView>
-                    </div>
+                        </div>
+                    }
                 </div>
             </div>
         );

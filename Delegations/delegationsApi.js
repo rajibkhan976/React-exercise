@@ -40,6 +40,10 @@ export function getDelegationUsers(userRoleId, searchTerm) {
     });
 }
 
+export function findDelegatedUser(id) {
+    return apiClient.get(`${rootPrefix}/findDelegatedUser/${id}`);
+}
+
 export function saveDelegation(
     userRoleId,
     delegationId,

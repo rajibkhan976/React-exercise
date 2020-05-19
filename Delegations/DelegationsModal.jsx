@@ -1,4 +1,4 @@
-﻿import React from "react";
+﻿import React, { useEffect, useState } from "react";
 import translate from "redux-polyglot/translate";
 import { Modal } from "react-bootstrap";
 import DelegationsForm from "./DelegationsForm";
@@ -6,6 +6,8 @@ import DelegationsReportingPlace from "./DelegationsReportingPlace";
 
 const DelegationsModal = ({
     p,
+    isLoading,
+    isLoadingGroupTree,
     toggleModal,
     rowIndex,
     editIndex,
@@ -42,11 +44,11 @@ const DelegationsModal = ({
     const ModalFormButtonGroup = ({ handleModalClose, saveDelegation }) => {
         return (
             <div className="col-xs-12">
-                    <button type="button" className="btn btn-default" onClick={() => handleModalClose()}>
-                        {p.t("delegations_list_cancel")}
-                    </button>
-                    <button type="button" className="btn btn-primary save-delegation-button" onClick={() => saveDelegation()}>
+                    <button type="button" className="btn btn-primary" onClick={() => saveDelegation()}>
                         {p.t("delegations_list_save")}
+                    </button>
+                    <button type="button" className="btn btn-default cancel-save-delegation-button" onClick={() => handleModalClose()}>
+                        {p.t("delegations_list_cancel")}
                     </button>
             </div>
             );
@@ -61,9 +63,9 @@ const DelegationsModal = ({
             bsSize="lg"
             dialogClassName={
                 (deleteIndex !== null) ?
-                    "delegations-confirmation-modal modal-warning"
+                    "delegations-confirmation-modal modal-warning force-nc-modal"
                     :
-                    "delegations-data-modal"
+                    "delegations-data-modal force-nc-modal"
                 }
         >
             <Modal.Header closeButton>
@@ -97,6 +99,8 @@ const DelegationsModal = ({
                             </div>
                             <div className="col-md-6 col-sm-12 delegations-data-modal-tree">
                                 <DelegationsReportingPlace
+                                    isLoading={isLoading}
+                                    isLoadingGroupTree={isLoadingGroupTree}
                                     nodes={nodes}
                                     handleChangeReportingPlace={handleChangeReportingPlace}
                                 />
@@ -120,11 +124,11 @@ const DelegationsModal = ({
             <Modal.Footer>
                 {(deleteIndex !== null) ?
                     <div className="delegations-confirmation-modal-buttons">
-                        <button type="button" className="btn btn-default" onClick={() => handleModalClose()}>
-                            {p.t("delegations_list_cancel")}
+                        <button type="button" className="btn btn-danger" onClick={(event) => removeDelegation(deleteIndex, event)}>
+                            {p.t("delegations_list_confirm_delete")}
                         </button>
-                        <button type="button" className="btn btn-primary remove-delegation-button" onClick={(event) => removeDelegation(deleteIndex, event)}>
-                            {p.t("delegations_list_confirm")}
+                        <button type="button" className="btn btn-default cancel-remove-delegation-button" onClick={() => handleModalClose()}>
+                            {p.t("delegations_list_cancel")}
                         </button>
                     </div>
                     :
