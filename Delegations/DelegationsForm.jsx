@@ -13,8 +13,10 @@ const DelegationsForm = ({
     isLoading,
     editIndex,
     delegationDetails,
+    delegableRoles,
     delegateRole,
     delegationUsers,
+    delegableUsers,
     userName,
     startingDate,
     endingDate,
@@ -28,7 +30,7 @@ const DelegationsForm = ({
     delegationsActions
 }) => {
 
-    const setRolesOptions = (delegationDetails) => {
+    const setRolesOptions = (delegationDetails, delegableRoles) => {
         let options  = [];
         if (!isLoading &&
             delegationDetails !== undefined &&
@@ -54,6 +56,16 @@ const DelegationsForm = ({
                 }
             })
         }
+        if (!isLoading &&
+            delegableRoles !== undefined &&
+            delegableRoles !== null &&
+            delegableRoles.length !== 0) {
+            delegableRoles.map((value, index) => {
+                options.push(
+                    { value: `${value.name}`, label: `${value.name}` }
+                );
+            });
+        }
         return options;
     }
 
@@ -66,9 +78,23 @@ const DelegationsForm = ({
                 options.push(
                     { value: `${value.text}`, label: `${value.text}` }
                 );
-            })
+            });
         }
         return options;
+    }
+
+    const setReceiverUsersOptions = (delegableUsers) => {
+        let roleReceiverOptions = [];
+        if (!isLoading &&
+            delegableUsers !== undefined &&
+            delegableUsers.length !== 0) {
+            delegableUsers.map((value, index) => {
+                roleReceiverOptions.push(
+                    { value: `${value.username} - ${value.fullName}`, label: `${value.username} - ${value.fullName}` }
+                );
+            });
+        }
+        return roleReceiverOptions;
     }
 
     return (
@@ -78,8 +104,8 @@ const DelegationsForm = ({
                 className="select-delegations-rolls"
                 name="form-field-name"
                 value={delegateRole}
-                onChange={(delegateRole) => handleChangeDelegateRole(delegateRole, delegationDetails)}
-                options={setRolesOptions(delegationDetails)}
+                onChange={(delegateRole) => handleChangeDelegateRole(delegateRole, delegationDetails, delegableRoles)}
+                options={setRolesOptions(delegationDetails, delegableRoles)}
                 disabled={editIndex ? true : false}
                 isLoading={isLoading ? true : false}
             />
@@ -89,7 +115,7 @@ const DelegationsForm = ({
                 name="form-field-name"
                 value={userName}
                 onChange={(userName) => handleChangeUserName(userName)}
-                options={setDelegableUsersOptions(delegationUsers)}
+                options={(delegableUsers.length !== 0) ? setReceiverUsersOptions(delegableUsers) : ((delegationUsers.length !== 0) ? setDelegableUsersOptions(delegationUsers) : [])}
                 disabled={editIndex ? true : false}
                 isLoading={isLoading ? true : false}
             />
@@ -124,9 +150,11 @@ function mapStateToProps(state) {
         isLoading: state.delegations.myDelegations.isLoading,
         list: state.delegations.myDelegations.list,
         delegationDetails: state.delegations.myDelegations.delegationDetails,
+        delegableRoles: state.delegations.myDelegations.delegableRoles,
         groupTree: state.delegations.myDelegations.groupTree,
         partialRole: state.delegations.myDelegations.partialRole,
-        delegationUsers: state.delegations.myDelegations.delegationUsers
+        delegationUsers: state.delegations.myDelegations.delegationUsers,
+        delegableUsers: state.delegations.myDelegations.delegableUsers
     };
 }
 

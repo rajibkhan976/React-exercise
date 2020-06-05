@@ -14,7 +14,7 @@ if (element) {
     store.dispatch(translationService.loadTranslations("delegations.list")).then(() => {
         store.dispatch(delegationsActions.loadDelegationDetails());
         store.dispatch(delegationsActions.loadDelegationList("Id", "ASC"));
-
+        
         render(
             <Provider store={store}>
                 <DelegationsList />

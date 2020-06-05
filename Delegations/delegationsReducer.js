@@ -23,7 +23,16 @@ function myDelegationsReducer(state, action) {
         case Types.LOAD_DELEGATIONS_DETAILS_SUCCESS:
             return { ...state, delegationDetails: action.data };
 
+        case Types.LOAD_DELEGABLE_ROLES_SUCCESS:
+            return { ...state, delegableRoles: Update(state.delegableRoles, { $push: action.data }) };
+
+        case Types.RESET_DELEGABLE_ROLES_SUCCESS:
+            return { ...state, delegableRoles: action.data };
+
         case Types.LOAD_GROUP_TREE_SUCCESS:
+            return { ...state, groupTree: action.data };
+
+        case Types.LOAD_ALLOWED_GROUP_TREE_SUCCESS:
             return { ...state, groupTree: action.data };
 
         case Types.LOAD_SELECTED_ROLE_PARTIAL_SUCCESS:
@@ -32,8 +41,17 @@ function myDelegationsReducer(state, action) {
         case Types.LOAD_DELEGATION_USERS_SUCCESS:
             return { ...state, delegationUsers: action.data.results };
 
+        case Types.RESET_DELEGATION_USERS_SUCCESS:
+            return { ...state, delegationUsers: action.data };
+
         case Types.LOAD_DELEGATED_USER_SUCCESS:
             return { ...state, delegatedUser: action.data };
+
+        case Types.LOAD_DELEGABLE_USERS_SUCCESS:
+            return { ...state, delegableUsers: action.data };
+
+        case Types.RESET_DELEGABLE_USERS_SUCCESS:
+            return { ...state, delegableUsers: action.data };
 
         case Types.SAVE_DELEGATION_SUCCESS:
             return Update(state, { $push: [action.data] });

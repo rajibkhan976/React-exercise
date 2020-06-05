@@ -14,11 +14,23 @@ export function getDelegationDetails(id) {
     return apiClient.get(`${rootPrefix}/${id}`);
 }
 
+export function getDelegableRoles(roleId) {
+    return apiClient.get(`${rootPrefix}/findDelegableRoles`, { params: { roleId } });
+}
+
 export function getJsonGroupTree(selectedUserRoleId, destinationUserRoleId) {
     return apiClient.get(`${rootPrefix}/group-tree`, {
         params: {
             selectedUserRoleId,
             destinationUserRoleId
+        }
+    });
+}
+
+export function getAllowedGroupTree(selectedUserRoleId) {
+    return apiClient.get(`${rootPrefix}/findAllowedGroupTree`, {
+        params: {
+            selectedUserRoleId
         }
     });
 }
@@ -36,6 +48,14 @@ export function getDelegationUsers(userRoleId, searchTerm) {
         params: {
             userRoleId,
             searchTerm
+        }
+    });
+}
+
+export function getDelegableUsers(roleId) {
+    return apiClient.get(`${rootPrefix}/findDelegableUsers`, {
+        params: {
+            roleId
         }
     });
 }

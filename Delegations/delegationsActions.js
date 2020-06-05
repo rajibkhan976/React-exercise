@@ -51,6 +51,36 @@ export function loadDelegationDetails(id) {
     };
 }
 
+export function loadDelegableRoles(roleId) {
+    return function (dispatch) {
+        dispatch(setIsLoading(true));
+        return Api.getDelegableRoles(roleId)
+            .then(result => {
+                dispatch(setIsLoading(false));
+                return dispatch({
+                    type: Types.LOAD_DELEGABLE_ROLES_SUCCESS,
+                    data: result.data
+                });
+            })
+            .catch(error => {
+                dispatch(setIsLoading(false));
+                return dispatch({
+                    type: Types.LOAD_DELEGABLE_ROLES_FAILED,
+                    data: `Fetching delegable roles failed ${error}`
+                });
+            });
+    };
+}
+
+export function resetDelegableRolesToPrevState() {
+    return function (dispatch) {
+        return dispatch({
+            type: Types.RESET_DELEGABLE_ROLES_SUCCESS,
+            data: []
+        });
+    }
+}
+
 export function loadGroupTree(selectedUserRoleId, destinationUserRoleId) {
     return function (dispatch) {
         dispatch(setIsLoadingGroupTree(true));
@@ -67,6 +97,27 @@ export function loadGroupTree(selectedUserRoleId, destinationUserRoleId) {
                 return dispatch({
                     type: Types.LOAD_GROUP_TREE_FAILED,
                     data: `Fetching group tree failed ${error}`
+                });
+            });
+    };
+}
+
+export function loadAllowedGroupTree(selectedUserRoleId) {
+    return function (dispatch) {
+        dispatch(setIsLoadingGroupTree(true));
+        return Api.getAllowedGroupTree(selectedUserRoleId)
+            .then(result => {
+                dispatch(setIsLoadingGroupTree(false));
+                return dispatch({
+                    type: Types.LOAD_ALLOWED_GROUP_TREE_SUCCESS,
+                    data: result.data
+                });
+            })
+            .catch(error => {
+                dispatch(setIsLoadingGroupTree(false));
+                return dispatch({
+                    type: Types.LOAD_ALLOWED_GROUP_TREE_FAILED,
+                    data: `Fetching allowed group tree failed ${error}`
                 });
             });
     };
@@ -112,6 +163,45 @@ export function loadDelegationUsers(userRoleId, searchTerm) {
                 });
             });
     };
+}
+
+export function resetDelegationUsersToPrevState() {
+    return function (dispatch) {
+        return dispatch({
+            type: Types.RESET_DELEGATION_USERS_SUCCESS,
+            data: []
+        });
+    }
+}
+
+export function loadDelegableUsers(roleId) {
+    return function (dispatch) {
+        dispatch(setIsLoading(true));
+        return Api.getDelegableUsers(roleId)
+            .then(result => {
+                dispatch(setIsLoading(false));
+                return dispatch({
+                    type: Types.LOAD_DELEGABLE_USERS_SUCCESS,
+                    data: result.data
+                });
+            })
+            .catch(error => {
+                dispatch(setIsLoading(false));
+                return dispatch({
+                    type: Types.LOAD_DELEGABLE_USERS_FAILED,
+                    data: `Fetching delegable users failed ${error}`
+                });
+            });
+    };
+}
+
+export function resetDelegableUsersToPrevState() {
+    return function (dispatch) {
+        return dispatch({
+            type: Types.RESET_DELEGABLE_USERS_SUCCESS,
+            data: []
+        });
+    }
 }
 
 export function findDelegatedUser(userId) {

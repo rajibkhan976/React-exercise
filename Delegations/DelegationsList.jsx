@@ -13,7 +13,7 @@ import { FadeUp } from "../../../Utils/transitionWrappers";
 import DelegationsModal from "./DelegationsModal";
 import DelegatedUserInfo from "./DelegatedUserInfo";
 
-const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDetails, groupTree, partialRole, delegationUsers, delegatedUser, delegationsActions }) => {
+const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDetails, delegableRoles, groupTree, partialRole, delegationUsers, delegatedUser, delegableUsers, delegationsActions }) => {
 
     const [delegateRole, setDelegateRole] = useState('');
     const [nodes, setNodes] = useState(undefined);
@@ -69,6 +69,9 @@ const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDet
     const [validationError, setValidationError] = useState(undefined);
 
     const handleModalClose = () => {
+
+        delegationsActions.resetDelegableRolesToPrevState();
+
         if (deleteIndex !== null) {
             setDeleteIndex(null);
         }
@@ -168,9 +171,16 @@ const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDet
                 ) {
                     delegationDetails.roles.map((value, index) => {
                         if (value.role.name === delegateRole) {
+                            delegationsActions.resetDelegableUsersToPrevState();
                             delegationsActions.loadDelegationUsers(value.id, userName);
                         }
                     });
+            }
+            if (reportingPlaceParam !== undefined &&
+                reportingPlaceParam.sourceUserRole !== undefined &&
+                reportingPlaceParam.destinationUserRole !== undefined
+            ) {
+                delegationsActions.loadAllowedGroupTree(reportingPlaceParam.sourceUserRole.id);
             }
         }
     }, [delegateRole]);
@@ -189,7 +199,7 @@ const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDet
         }
     }, [partialRole]);
 
-    const handleChangeDelegateRole = (delegateRole, delegationDetails) => {
+    const handleChangeDelegateRole = (delegateRole, delegationDetails, delegableRoles) => {
         if (delegateRole !== null &&
             delegationDetails !== undefined &&
             delegationDetails.roles !== undefined
@@ -199,6 +209,7 @@ const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDet
                     delegationsActions.getDependsOnSelectedRolePartial(value.id);
                 }
             });
+            delegationsActions.resetDelegableUsersToPrevState();
             setDelegateRole(delegateRole.value);
             setValidationError(undefined);
             setUserName('');
@@ -214,11 +225,34 @@ const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDet
                 });
             }
         }
+        if (delegableRoles !== undefined &&
+            delegableRoles !== null &&
+            delegableRoles.length !== 0 &&
+            delegateRole !== null) {
+            delegableRoles.map((value, index) => {
+                if (value.name === delegateRole.value) {
+                    delegationsActions.resetDelegationUsersToPrevState();
+                    setDelegateRole(delegateRole.value);
+                    delegationsActions.loadDelegableUsers(value.id);
+                }
+            });
+            setValidationError(undefined);
+            setUserName('');
+        } 
         setValidationError(undefined);
         setUserName('');
     }
 
     const addDelegation = (event) => {
+
+        if (delegationDetails !== undefined &&
+            delegationDetails.roles !== undefined &&
+            delegationDetails.roles !== null &&
+            delegationDetails.roles.length !== 0) {
+            delegationDetails.roles.map((value, index) => {
+                delegationsActions.loadDelegableRoles(value.roleId);
+            });
+        }
 
         if (isLoading) {
             window.loader.show();
@@ -272,6 +306,8 @@ const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDet
             if (userName !== '') {
                 setUserName('');
             }
+
+            delegationsActions.resetDelegableRolesToPrevState();
             
             setStartingDate(undefined);
             setEndingDate(undefined);
@@ -612,7 +648,7 @@ const DelegationsList = ({ p, isLoading, isLoadingGroupTree, list, delegationDet
             return renderBodyCell({ columnIndex, key, parent, rowIndex, style });
         }
     }
-
+    
     return (
         <div className="col-xs-12 delegations-list-container" onClick={(event) => openDelegatedUserInfo(null, null, event)}>
             <div className="delegations-list">
@@ -735,7 +771,8 @@ DelegationsList.propTypes = {
     groupTree: PropTypes.array,
     partialRole: PropTypes.object,
     delegationUsers: PropTypes.array,
-    delegatedUser: PropTypes.array
+    delegatedUser: PropTypes.array,
+    delegableUsers: PropTypes.array
 };
 
 function mapStateToProps(state) {
@@ -744,10 +781,12 @@ function mapStateToProps(state) {
         isLoadingGroupTree: state.delegations.myDelegations.isLoadingGroupTree,
         list: state.delegations.myDelegations.list,
         delegationDetails: state.delegations.myDelegations.delegationDetails,
+        delegableRoles: state.delegations.myDelegations.delegableRoles,
         groupTree: state.delegations.myDelegations.groupTree,
         partialRole: state.delegations.myDelegations.partialRole,
         delegationUsers: state.delegations.myDelegations.delegationUsers,
-        delegatedUser: state.delegations.myDelegations.delegatedUser
+        delegatedUser: state.delegations.myDelegations.delegatedUser,
+        delegableUsers: state.delegations.myDelegations.delegableUsers
     };
 }
 
